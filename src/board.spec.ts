@@ -1,38 +1,32 @@
-import { isFill, isRightMove, checkWin, boardFromString, boardToString } from "./board"
+import { board } from "./board"
 
-test("Преобразования", () => {
-    let source = "00__xx___"
-    let board = boardFromString(source)
-    let recover = boardToString(board)
-    expect(recover).toBe(source)
+test("Convert", () => {
+    let source = "00__XX___"
+    expect(board.fromString(source)).toBe(true)
+    expect(board.toString()).toBe(source)
+    expect(board.fromString("________")).toBe(false)
+    expect(board.fromString("________1")).toBe(false)
 })
 
 test("isFill", () => {
-    expect(
-        isFill(boardFromString("000XXX00_")))
-        .toBe(false)
-    expect(
-        isFill(boardFromString("000XXX000")))
-        .toBe(true)
+    board.fromString("000XXX00_")
+    expect(board.isFill()).toBe(false)
+    board.fromString("000XXX000")
+    expect(board.isFill()).toBe(true)
 })
 
-test("isRightMove", () => {
-    expect(
-        isRightMove(0, boardFromString("000XXX00_")))
-        .toBe(false)
-    expect(
-        isRightMove(8, boardFromString("000XXX00_")))
-        .toBe(true)
+test("move", () => {
+    board.fromString("000XXX00_")
+    expect(board.move(0, "0")).toBe(false)
+    expect(board.move(8, "X")).toBe(true)
+    expect(board.cells[8]).toBe("X")
 })
 
 test("checkWin", () => {
-    expect(
-        checkWin(boardFromString("000XXX00_")))
-        .toBe("0")
-    expect(
-        checkWin(boardFromString("__X_X_X___")))
-        .toBe("X")
-    expect(
-        checkWin(boardFromString("_________")))
-        .toBe("_")
+    board.fromString("000XXX00_")
+    expect(board.checkWin()).toBe("0")
+    board.fromString("__X_X_X___")
+    expect(board.checkWin()).toBe("X")
+    board.fromString("_________")
+    expect(board.checkWin()).toBe("_")
 })

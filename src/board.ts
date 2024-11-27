@@ -1,61 +1,67 @@
-// TODO
-// преобразовывать текущую позицию из строки (например 00__XX___)
-// в массив (например ['0','0','_','_','X','X','_','_','_'])
-export function boardFromString(s: string): string[] {
-  return s.split('')
+export type Cell = '_' | 'X' | '0'
+export type Cells = [Cell, Cell, Cell, Cell, Cell, Cell, Cell, Cell, Cell]
+
+function isCell(sym: string): sym is Cell {
+  return sym === '_' || sym === 'X' || sym === '0'
 }
 
-// TODO
-// преобразовывать текущую позицию в виде массива в строку
-export function boardToString(b: string[]): string {
-  return b.join('')
-}
+// В объекте хранится текущая позиция.
+export const board: {
+  cells: Cells
+  fromString: (str: string) => boolean
+  toString: () => string
+  isFill: () => boolean
+  move: (index: number, cell: Cell) => boolean
+  getLineChar: (line: number[]) => Cell[]
+  checkWin: () => Cell
+  winPos: number[][]
+} = {
+  cells: ['_', '_', '_', '_', '_', '_', '_', '_', '_'],
 
-// TODO
-// Если ни в одном из элементов массива board нет элементов
-// равных "_" она возвращает true, иначе - false
-export function isFill(board: string[]): boolean {
-  return !board.includes('_')
-}
+  fromString(str: string) {
+    if (str.length !== 9) return false
+    const cells = str.split('')
+    if (!cells.every(isCell)) return false
+    this.cells = cells as Cells
+    return true
+  },
 
-// Если клетка в позиции move доски board равна "_"
-// (в нее можно пойти) функция возвращает true, иначе - false
-export function isRightMove(move: number, board: string[]): boolean {
-  return board[move] === '_'
-}
+  toString(): string {
+    return this.cells.join('')
+  },
 
-// Список троек позиций, находящихся на одной линии
-//  (выигрышные комбинации)
-const winPos = [
-  [0, 1, 2],
-  [3, 4, 5],
-  [6, 7, 8],
-  [0, 3, 6],
-  [1, 4, 7],
-  [2, 5, 8],
-  [0, 4, 8],
-  [2, 4, 6]
-]
+  isFill() {
+    return !this.cells.includes('_')
+  },
 
-// Используется в функции checkWin
-// для выбора одной возможной выигрышной комбинации
-function getLineChar(line: number[], board: string[]): string[] {
-  return [board[line[0]], board[line[1]], board[line[2]]]
-}
+  move(index: number, cell: Cell) {
+    if (this.cells[index] !== '_') return false
+    this.cells[index] = cell
+    return true
+  },
 
-// TODO
-// Проверяет по winPos, имеется ли выигрышная комбинация
-//  из трех одинаковых символов, находящихся на одной линии.
-// В случае наличия такой комбинации функция должна вернуть
-//  X или 0 соответственно, иначе нужно вернуть _.
-export function checkWin(board: string[]): string {
-  for (const positions of winPos) {
-    const line = getLineChar(positions, board)
+  getLineChar(line: number[]) {
+    return [this.cells[line[0]], this.cells[line[1]], this.cells[line[2]]]
+  },
 
-    if (line[0] !== '_' && line[0] === line[1] && line[1] === line[2]) {
-      return line[0]
+  checkWin() {
+    for (const line of this.winPos) {
+      const chars = this.getLineChar(line)
+      if (chars[0] !== '_' && chars[0] === chars[1] && chars[1] === chars[2]) {
+        return chars[0]
+      }
     }
-  }
+    return '_'
+  },
 
-  return '_'
+  winPos: [
+    [0, 1, 2],
+    [3, 4, 5],
+    [6, 7, 8],
+    [0, 3, 6],
+    [1, 4, 7],
+    [2, 5, 8],
+    [0, 4, 8],
+    [2, 4, 6]
+  ]
 }
